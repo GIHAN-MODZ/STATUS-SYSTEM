@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Public Connect - Add Contacts</title>
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --secondary: #2c3e50;
+            --accent: #e74c3c;
+            --text: #ecf0f1;
+            --bg: #1a1a1a;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .container {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid var(--primary);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            color: var(--text);
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-secondary {
+            background: var(--secondary);
+            margin-top: 10px;
+        }
+        .disclaimer {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 3px solid var(--accent);
+            font-size: 0.9rem;
+        }
+        .nav-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Remote Public Connect</div>
+        <div>Add Contacts</div>
+    </div>
+    
+    <div class="container">
+        <div class="form-group">
+            <label for="name">Contact Name</label>
+            <input type="text" id="name" placeholder="Enter name">
+        </div>
+        
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="947XXXXXXXX">
+        </div>
+        
+        <button class="btn" onclick="addContact()">Add Contact</button>
+        <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+        
+        <div class="disclaimer">
+            Contacts added here will be publicly available for download on the View/Download page.
+        </div>
+    </div>
+    
+    <a href="view-contacts.html" class="nav-link">Go to View/Download Page →</a>
+
+    <script>
+        // Add contact to localStorage
+        function addContact() {
+            const name = document.getElementById('name').value.trim() || "Unknown";
+            const phone = document.getElementById('phone').value.trim().replace(/\D/g, '');
+            
+            if (phone.length < 10) {
+                alert("Please enter a valid phone number");
+                return;
+            }
+            
+            let contacts = JSON.parse(localStorage.getItem('publicContacts')) || [];
+            
+            // Check for duplicates
+            if (!contacts.some(c => c.phone === phone)) {
+                contacts.push({
+                    name: name,
+                    phone: phone,
+                    date: new Date().toLocaleString()
+                });
+                
+                localStorage.setItem('publicContacts', JSON.stringify(contacts));
+                alert("Contact added to public database");
+                clearForm();
+            } else {
+                alert("This phone number already exists in the database");
+            }
+        }
+        
+        function clearForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+        }
+    </script>
+</body>
+</html>
