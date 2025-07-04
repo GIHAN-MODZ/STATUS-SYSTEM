@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Public Connect - View Contacts</title>
+    <style>
+        :root {
+            --primary: #8e44ad;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --text: #ecf0f1;
+            --bg: #1a1a1a;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .container {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid var(--primary);
+        }
+        .contact-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(142, 68, 173, 0.3);
+        }
+        .contact-name {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        .contact-phone {
+            font-family: monospace;
+            margin: 5px 0;
+        }
+        .contact-date {
+            font-size: 0.8rem;
+            color: #777;
+        }
+        .btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .nav-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--primary);
+        }
+        .count {
+            color: var(--primary);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Remote Public Connect</div>
+        <div>View/Download Contacts</div>
+    </div>
+    
+    <div class="container">
+        <div>Total Contacts: <span class="count" id="contactCount">0</span></div>
+        
+        <div id="contactsList">
+            <!-- Contacts will be displayed here -->
+        </div>
+        
+        <button class="btn" onclick="downloadVCF()">Download All as VCF</button>
+    </div>
+    
+    <a href="add-contacts.html" class="nav-link">← Go to Add Contacts Page</a>
+
+    <script>
+        // Display all contacts
+        function displayContacts() {
+            const contacts = JSON.parse(localStorage.getItem('publicContacts')) || [];
+            const container = document.getElementById('contactsList');
+            const countElement = document.getElementById('contactCount');
+            
+            countElement.textContent = contacts.length;
+            
+            if (contacts.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;">No contacts available</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            contacts.forEach(contact => {
+                const contactDiv = document.createElement('div');
+                contactDiv.className = 'contact-item';
+                contactDiv.innerHTML = `
+                    <div class="contact-name">${contact.name}</div>
+                    <div class="contact-phone">${formatPhone(contact.phone)}</div>
+                    <div class="contact-date">${contact.date}</div>
+                `;
+                container.appendChild(contactDiv);
+            });
+        }
+        
+        // Format phone number
+        function formatPhone(phone) {
+            return phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        }
+        
+        // Download as VCF
+        function downloadVCF() {
+            const contacts = JSON.parse(localStorage.getItem('publicContacts')) || [];
+            
+            if (contacts.length === 0) {
+                alert("No contacts available to download");
+                return;
+            }
+            
+            let vcfContent = "";
+            contacts.forEach(contact => {
+                vcfContent += `BEGIN:VCARD
+VERSION:3.0
+FN:${contact.name}
+TEL;TYPE=CELL:${contact.phone}
+END:VCARD\n`;
+            });
+            
+            const blob = new Blob([vcfContent], { type: "text/vcard" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `public_contacts_${new Date().toISOString().slice(0,10)}.vcf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        // Initialize
+        displayContacts();
+    </script>
+</body>
+</html>
